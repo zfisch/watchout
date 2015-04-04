@@ -3,6 +3,9 @@
 //create a board
 
 var size = 800;
+var score = 0;
+var highScore = 0;
+var collisionCounter = 0;
 
 var gameBoard = d3.select('body').append('svg')
   .attr('height', size + "px")
@@ -98,35 +101,54 @@ var placeHero = function(){
 
 placeHero();
 
-//create function to move player
 
-  //use d3.mouse(this) to track mouse
-  d3.select("svg").on("mousemove", function() {
-    var position = d3.mouse(this);
-    var px = position[0]
-    var py = position[1]
+//move player with mouseover
+d3.select("svg").on("mousemove", function() {
+  var position = d3.mouse(this);
+  var px = position[0]
+  var py = position[1]
 
-    hero["x"] = px;
-    hero["y"] = py;
+  hero["x"] = px;
+  hero["y"] = py;
 
-     d3.select(".hero").data(hero)
-    .attr("x", px)
-    .attr("y", py);
-  });
-    //leave hero where mouse moved outside of board???
-    //place hero where mouse moves onto the board???
+   d3.select(".hero").data(hero)
+  .attr("x", px)
+  .attr("y", py);
+});
+
+//implement collision detection
+var detectCollision = function(){
+ enemies.forEach(function(enemy){
+  var diffx = Math.abs(hero["x"] - enemy["x"]);
+  var diffy = Math.abs(hero["y"] - enemy["y"]);
 
 
+  if(diffx < 7 || diffy < 7 ){
+  //increment collision counter
+    collisionCounter++;
+  //reset score
+    resetScore();
+    console.log(collisionCounter);
+  }
+ })
+};
 
-//keep score
+//increment score
+setInterval(function(score){
+  detectCollision();
+  score++
+}, 100);
+
+var resetScore = function(){
+  if(score > highScore){
+    highScore = score;
+  }
+  score = 0;
+};
 
 //high score
 
-//implement collision detection
 
-  //increment collision counter
-
-  //reset score
 
 
 
