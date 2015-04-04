@@ -42,6 +42,7 @@ var createEnemies = function(n){
 var enemies = createEnemies(10);
 
 
+
 var placeEnemies = function(){
   d3.select("svg").selectAll("image").data(enemies)
   .enter()
@@ -54,6 +55,9 @@ var placeEnemies = function(){
   .attr("y", function(d){return d["y"]});
 };
 placeEnemies();
+
+var enemyHeight = d3.select('.enemy').attr('height');
+var enemyWidth = d3.select('.enemy').attr('width');
 
 //define a function to make enemies move every second
 
@@ -78,11 +82,11 @@ setInterval(updatePositions, 1000);
 
 //create a movable player
 var createHero = function(){
-  var hero = [{
+  var hero = {
     "name": "hero",
     "x": 400,
     "y": 400
-  }];
+  };
   return hero;
 };
 
@@ -100,35 +104,50 @@ var placeHero = function(){
 };
 
 placeHero();
-
+var heroHeight = d3.select(".hero").attr("height");
+var heroWidth = d3.select(".hero").attr("width");
 
 //move player with mouseover
 d3.select("svg").on("mousemove", function() {
   var position = d3.mouse(this);
-  var px = position[0]
-  var py = position[1]
+  var px = position[0] - (heroWidth / 2);
+  var py = position[1] - (heroHeight / 2);
 
-  hero["x"] = px;
-  hero["y"] = py;
+  hero[0]["x"] = px;
+  hero[0]["y"] = py;
 
    d3.select(".hero").data(hero)
   .attr("x", px)
   .attr("y", py);
 });
 
+
+//find position of an object on the screen
+var findPosition = function(obj){
+  var x = obj.attr('x');
+  var y = obj.attr('y');
+  var position = [x, y];
+  return position;
+};
+
+
 //implement collision detection
 var detectCollision = function(){
+
  enemies.forEach(function(enemy){
-  var diffx = Math.abs(hero["x"] - enemy["x"]);
-  var diffy = Math.abs(hero["y"] - enemy["y"]);
+  var diffx = Math.abs(hero[0]["x"] - (enemy["x"] - enemyWidth));
+  var diffy = Math.abs(hero[0]["y"] - (enemy["y"] - enemyHeight));
 
 
-  if(diffx < 7 || diffy < 7 ){
+  if(diffx < ((enemyWidth/2) + (heroWidth/2)) ||
+     diffy < ((enemyHeight/2) + (heroHeight/2)) ){
   //increment collision counter
     collisionCounter++;
+    console.log(collisionCounter);
   //reset score
     resetScore();
-    console.log(collisionCounter);
+    return;
+   // console.log(collisionCounter);
   }
  })
 };
@@ -137,7 +156,7 @@ var detectCollision = function(){
 setInterval(function(score){
   detectCollision();
   score++
-}, 100);
+}, 250);
 
 var resetScore = function(){
   if(score > highScore){
